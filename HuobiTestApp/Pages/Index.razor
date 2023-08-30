@@ -1,0 +1,72 @@
+﻿@using HuobiTestApp.Models
+@inherits HuobiTestApp.Base.RefreshablePageBase
+@page "/"
+
+<MudCard Class="mb-4">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h5">@TotalBalance.ToString(CurrencyFormat)</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudStack Row="true">
+                <MudSelect T="string" @bind-Value="SelectedCurrency" SelectedValuesChanged="SelectedCurrencyChanged" Label="Currency" 
+                           AnchorOrigin="Origin.BottomCenter" Style="width: 70px;">
+                    <MudSelectItem Value="@("USD")"/>
+                    <MudSelectItem Value="@("RUB")"/>
+                    <MudSelectItem Value="@("UAH")"/>
+                </MudSelect>
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Default" OnClick="Refresh"></MudIconButton>
+            </MudStack>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudText Typo="Typo.body1">Yesterday Income</MudText>
+        <MudText Typo="Typo.h6">@TodayProfit.ToString(CurrencyProfitFormat)</MudText>
+    </MudCardContent>
+</MudCard>
+
+@foreach (var account in Accounts)
+{
+    <div class="mb-3">
+        <MudCard Class="mb-2" Outlined="true">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">@($"{account.Name}")</MudText>
+                    <MudText Typo="Typo.h6">@account.TotalBalance.ToString(CurrencyFormat)</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body2">Yesterday Income</MudText>
+                <MudText Typo="Typo.subtitle2">@account.TodayProfit.ToString(CurrencyProfitFormat)</MudText>
+            </MudCardContent>
+        </MudCard>
+        <MudTable Items="@account.Assets" Loading="@Loading" LoadingProgressColor="Color.Info" Breakpoint="Breakpoint.None">
+            <HeaderContent>
+                <MudTh>Currency</MudTh>
+                <MudTh>Total Amount</MudTh>
+                <MudTh>Yest. Income</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudText Typo="Typo.body1">@context.Currency</MudText>
+                    @if (context.ProjectType != ProjectType.Flexible)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Info">@context.ProjectType</MudText>
+                    }
+                </MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.body1">@context.TotalAmountFiat.ToString(CurrencyFormat)</MudText>
+                    <MudText Typo="Typo.body2">@context.TotalAmount</MudText>
+                </MudTd>
+                <MudTd>
+                    <MudText Typo="Typo.body1" Color="context.YesterdayIncomeFiat > 0 ? Color.Success : context.YesterdayIncomeFiat == 0 ? Color.Tertiary : Color.Error">@context.YesterdayIncomeFiat.ToString(CurrencyProfitFormat)</MudText>
+                    <MudText Typo="Typo.body2" Color="context.YesterdayIncome > 0 ? Color.Success : context.YesterdayIncome == 0 ? Color.Tertiary : Color.Error">@context.YesterdayIncome.ToString(DecimalSignFormat)</MudText>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </div>
+}
+
+<MudOverlay Visible="Loading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+</MudOverlay>
