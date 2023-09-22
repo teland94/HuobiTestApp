@@ -14,10 +14,10 @@
         <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
 
         <!-- Display name -->
-        <ApplicationTitle>Huobi App</ApplicationTitle>
+        <ApplicationTitle>HTX App</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.teland94.huobiapp</ApplicationId>
+        <ApplicationId>com.teland94.htxapp</ApplicationId>
         <ApplicationIdGuid>D7034D41-9FDD-497F-8059-517B14D4339A</ApplicationIdGuid>
 
         <!-- Versions -->

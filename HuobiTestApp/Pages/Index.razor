@@ -1,5 +1,7 @@
 ﻿@using HuobiTestApp.Models
+@using HuobiTestApp.ViewModel
 @inherits HuobiTestApp.Base.RefreshablePageBase
+
 @page "/"
 
 <MudCard Class="mb-4">
@@ -40,7 +42,8 @@
                 <MudText Typo="Typo.subtitle2">@account.TodayProfit.ToString(CurrencyProfitFormat)</MudText>
             </MudCardContent>
         </MudCard>
-        <MudTable Items="@account.Assets" Loading="@Loading" LoadingProgressColor="Color.Info" Breakpoint="Breakpoint.None">
+        <MudTable Items="@account.Assets" Loading="@Loading" LoadingProgressColor="Color.Info" Breakpoint="Breakpoint.None"
+                  T="SavingMiningUserAssetViewModel" OnRowClick="e => SymbolClicked(e, account.SettingsId)">
             <HeaderContent>
                 <MudTh>Currency</MudTh>
                 <MudTh>Total Amount</MudTh>
@@ -60,7 +63,7 @@
                 </MudTd>
                 <MudTd>
                     <MudText Typo="Typo.body1" Color="context.YesterdayIncomeFiat > 0 ? Color.Success : context.YesterdayIncomeFiat == 0 ? Color.Tertiary : Color.Error">@context.YesterdayIncomeFiat.ToString(CurrencyProfitFormat)</MudText>
-                    <MudText Typo="Typo.body2" Color="context.YesterdayIncome > 0 ? Color.Success : context.YesterdayIncome == 0 ? Color.Tertiary : Color.Error">@context.YesterdayIncome.ToString(DecimalSignFormat)</MudText>
+                    <MudText Typo="Typo.body2" Color="context.YesterdayIncome > 0 ? Color.Success : context.YesterdayIncome == 0 ? Color.Tertiary : Color.Error">@context.YesterdayIncome.ToString(Constants.DecimalSignFormat)</MudText>
                 </MudTd>
             </RowTemplate>
         </MudTable>

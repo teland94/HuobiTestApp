@@ -10,20 +10,41 @@ namespace HuobiTestApp.Services
 {
     public interface IHuobiService
     {
+        Task<IEnumerable<HuobiOrder>> GetHuobiClosedOrdersAsync(IHuobiRestClient huobiRestClient, string symbol, DateTime startTime, DateTime endTime);
+
         Task<IEnumerable<SavingMiningUserAssetViewModel>> GetSavingMiningUserAssetData(HttpClient httpClient,
             IHuobiRestClient huobiRestClient, decimal fiatCurrencyRate);
 
-        HttpClient CreateHttpClient(string ssoToken);
+        HttpClient CreateHttpClient(string ssoToken, string userAgent);
 
         Task Login(HttpClient httpClient);
     }
 
     public class HuobiService : IHuobiService
     {
+        public async Task<IEnumerable<HuobiOrder>> GetHuobiClosedOrdersAsync(IHuobiRestClient huobiRestClient, string symbol, DateTime startTime, DateTime endTime)
+        {
+            var startTimeRange = endTime.AddDays((endTime - startTime).Days > 1 ? -2 : -1);
+            var endTimeRange = endTime;
+
+            var allClosedOrders = new List<HuobiOrder>();
+
+            while (startTime <= startTimeRange)
+            {
+                var closedOrders = await huobiRestClient.SpotApi.Trading.GetClosedOrdersAsync(symbol,
+                    startTime: startTimeRange, endTime: endTimeRange);
+
+                allClosedOrders.AddRange(closedOrders.Data);
+
+                startTimeRange = startTimeRange.AddDays((startTimeRange - startTime).Days > 1 ? -2 : -1);
+                endTimeRange = endTimeRange.AddDays(-2);
+            }
+
+            return allClosedOrders;
+        }
+
         public async Task<IEnumerable<SavingMiningUserAssetViewModel>> GetSavingMiningUserAssetData(HttpClient httpClient, IHuobiRestClient huobiRestClient, decimal fiatCurrencyRate)
         {
-            //var orders = await GetHuobiClosedOrdersAsync(huobiRestClient, "usddusdt", new DateTime(2023, 8, 4), new DateTime(2023, 8, 12));
-
             var projectTypes = Enum.GetValues<ProjectType>();
 
             var savingMiningUserAssetsResult = new List<SavingMiningUserAsset>();
@@ -101,7 +122,7 @@ namespace HuobiTestApp.Services
             httpClient.DefaultRequestHeaders.Add("Hb-Pro-Token", loginResult.Data.Token);
         }
 
-        public HttpClient CreateHttpClient(string ssoToken)
+        public HttpClient CreateHttpClient(string ssoToken, string userAgent)
         {
             var cookieContainer = new CookieContainer();
 
@@ -115,8 +136,7 @@ namespace HuobiTestApp.Services
                 Timeout = TimeSpan.FromSeconds(60)
             };
 
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 YaBrowser/23.7.2.765 Yowser/2.5 Safari/537.36");
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
 
             return httpClient;
         }
@@ -134,27 +154,5 @@ namespace HuobiTestApp.Services
 
             return exchangeData;
         }
-
-        private async Task<IEnumerable<HuobiOrder>> GetHuobiClosedOrdersAsync(IHuobiRestClient huobiRestClient, string symbol, DateTime startTime, DateTime endTime)
-        {
-            var startTimeRange = endTime.AddDays((endTime - startTime).Days > 1 ? -2 : -1);
-            var endTimeRange = endTime;
-
-            var allClosedOrders = new List<HuobiOrder>();
-
-            while (startTime <= startTimeRange)
-            {
-                var closedOrders = await huobiRestClient.SpotApi.Trading.GetClosedOrdersAsync(symbol,
-                    startTime: startTimeRange, endTime: endTimeRange);
-
-                allClosedOrders.AddRange(closedOrders.Data);
-
-                startTimeRange = startTimeRange.AddDays((startTimeRange - startTime).Days > 1 ? -2 : -1);
-                endTimeRange = endTimeRange.AddDays(-2);
-            }
-
-            return allClosedOrders;
-        }
-
     }
 }

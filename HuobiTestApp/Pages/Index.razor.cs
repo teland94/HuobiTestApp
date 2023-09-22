@@ -11,17 +11,13 @@ using Microsoft.Extensions.Options;
 using MudBlazor;
 using HuobiUser = HuobiTestApp.Models.HuobiUser;
 using HuobiTestApp.Converters;
+using HuobiTestApp.Dialogs;
 using HuobiTestApp.Services;
 
 namespace HuobiTestApp.Pages
 {
     public partial class Index : RefreshablePageBase
     {
-        private const string CurrencyInvariantFormat = "¤0.00";
-        private const string CurrencyProfitInvariantFormat = "+¤0.00;-¤0.00;¤0.00";
-
-        public const string DecimalSignFormat = "+0.00000000;-0.00000000;0.00000000";
-
         public bool Loading { get; set; }
 
         public string SelectedCurrency { get; set; } = "USD";
@@ -35,6 +31,8 @@ namespace HuobiTestApp.Pages
         [Inject] public IHuobiRestClient HuobiRestClient { get; set; }
 
         [Inject] public ISnackbar Snackbar { get; set; }
+
+        [Inject] public IDialogService DialogService { get; set; }
 
         [Inject] public IOptions<AppSettings> AppSettings { get; set; }
 
@@ -50,6 +48,26 @@ namespace HuobiTestApp.Pages
             await Refresh();
         }
 
+        public async Task SymbolClicked(TableRowClickEventArgs<SavingMiningUserAssetViewModel> tableRowClickEventArgs, Guid accountSettingsId)
+        {
+            var symbol = tableRowClickEventArgs.Item;
+
+            if (symbol.Currency == "USDT")
+            {
+                return;
+            }
+
+            var accountSettings = AppSettings.Value.Accounts.FirstOrDefault(a => a.Id == accountSettingsId)!;
+
+            HuobiRestClient.SetApiCredentials(new ApiCredentials(accountSettings.ApiKey, accountSettings.ApiSecret));
+
+            await DialogService.ShowAsync<SymbolDetailsDialog>("Symbol Details", new DialogParameters<SymbolDetailsDialog>
+            {
+                { p => p.Currency, symbol.Currency },
+                { p => p.CurrencyFormat, CurrencyFormat }
+            });
+        }
+
         public async Task Refresh()
         {
             try
@@ -62,12 +80,12 @@ namespace HuobiTestApp.Pages
 
                 var currencySymbol = CurrencyTools.GetCurrencySymbol(SelectedCurrency);
 
-                CurrencyFormat = CurrencyInvariantFormat.Replace("¤", currencySymbol);
-                CurrencyProfitFormat = CurrencyProfitInvariantFormat.Replace("¤", currencySymbol);
+                CurrencyFormat = Constants.CurrencyInvariantFormat.Replace("¤", currencySymbol);
+                CurrencyProfitFormat = Constants.CurrencyProfitInvariantFormat.Replace("¤", currencySymbol);
 
                 foreach (var accountSettings in AppSettings.Value.Accounts)
                 {
-                    await ProcessAccount(accountSettings.SsoToken, new ApiCredentials(accountSettings.ApiKey, accountSettings.ApiSecret));
+                    await ProcessAccount(accountSettings);
                 }
 
                 foreach (var account in Accounts)
@@ -86,11 +104,11 @@ namespace HuobiTestApp.Pages
             }
         }
 
-        private async Task ProcessAccount(string ssoToken, ApiCredentials apiCredentials)
+        private async Task ProcessAccount(HuobiAccountSettings accountSettings)
         {
-            var httpClient = HuobiService.CreateHttpClient(ssoToken);
+            var httpClient = HuobiService.CreateHttpClient(accountSettings.SsoToken, AppSettings.Value.UserAgent);
 
-            HuobiRestClient.SetApiCredentials(apiCredentials);
+            HuobiRestClient.SetApiCredentials(new ApiCredentials(accountSettings.ApiKey, accountSettings.ApiSecret));
 
             await HuobiService.Login(httpClient);
 
@@ -123,7 +141,8 @@ namespace HuobiTestApp.Pages
                 Name = userData.Data.Email,
                 TotalBalance = balanceProfit.Data.TotalBalanceUsdt * fiatCurrencyRate,
                 TodayProfit = balanceProfit.Data.TodayProfit != null ? balanceProfit.Data.TodayProfit.Value * (symbolData.Data.ClosePrice ?? 0) * fiatCurrencyRate : 0,
-                Assets = assets
+                Assets = assets,
+                SettingsId = accountSettings.Id
             });
         }
     }

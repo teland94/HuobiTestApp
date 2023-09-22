@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Services;
 using System.Reflection;
+using Huobi.Net.Clients;
+using Huobi.Net.Interfaces.Clients;
 using HuobiTestApp.Services;
 using Microsoft.Extensions.Configuration;
 
@@ -32,8 +34,6 @@ public static class MauiProgram
 
 		builder.Services.AddMauiBlazorWebView();
 
-        builder.Services.AddTransient<IHuobiService, HuobiService>();
-
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
@@ -44,14 +44,22 @@ public static class MauiProgram
 			config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
         });
 
-        builder.Services.AddHuobi(options =>
-        {
-			options.RequestTimeout = TimeSpan.FromSeconds(60);
-        });
+       IHuobiRestClient huobiRestClient = new HuobiRestClient(options =>
+       {
+           options.RequestTimeout = TimeSpan.FromSeconds(60);
+       });
 
-        var accounts = builder.Configuration.GetRequiredSection("Accounts").Get<IEnumerable<HuobiAccountSettings>>();
+       IHuobiSocketClient huobiSocketClient = new HuobiSocketClient(options =>
+       {
+           options.RequestTimeout = TimeSpan.FromSeconds(60);
+       });
 
-        builder.Services.Configure<AppSettings>(options => options.Accounts = accounts);
+        builder.Services.AddSingleton(huobiRestClient);
+        builder.Services.AddSingleton(huobiSocketClient);
+
+        builder.Services.AddTransient<IHuobiService, HuobiService>();
+
+        builder.Services.Configure<AppSettings>(builder.Configuration);
 
 		return builder.Build();
 	}

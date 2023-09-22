@@ -9,5 +9,7 @@
         public decimal TodayProfit { get; set; }
 
         public IEnumerable<SavingMiningUserAssetViewModel> Assets { get; set; }
+
+        public Guid SettingsId { get; set; }
     }
 }

@@ -1,0 +1,42 @@
+﻿@using Huobi.Net.Interfaces.Clients
+@using HuobiTestApp.Services
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.body1">@($"{Currency}/USDT")</MudText>
+        <MudText Typo="Typo.h6">@ClosePrice.ToString(CurrencyFormat)</MudText>
+    </DialogContent>
+</MudDialog>
+
+@code {
+
+    [Parameter] public string Currency { get; set; }
+
+    [Parameter] public string CurrencyFormat { get; set; }
+
+    [Inject] public IHuobiRestClient HuobiRestClient { get; set; }
+
+    [Inject] public IHuobiSocketClient HuobiSocketClient { get; set; }
+
+    [Inject] public IHuobiService HuobiService { get; set; }
+
+    [Inject] public ISnackbar Snackbar { get; set; }
+
+    public decimal ClosePrice { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var symbol = $"{Currency}USDT";
+
+        await HuobiSocketClient.SpotApi.SubscribeToSymbolDetailUpdatesAsync(symbol, onUpdate =>
+        {
+            ClosePrice = onUpdate.Data.ClosePrice ?? 0;
+
+            InvokeAsync(StateHasChanged);
+        });
+
+        // var orders = await HuobiService.GetHuobiClosedOrdersAsync(HuobiRestClient, symbol, DateTime.Now.AddMonths(-3), DateTime.Now);
+
+        // Snackbar.Add(orders.Count().ToString());
+    }
+}
