@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HuobiTestApp.Models
+namespace HuobiTestApp.BLL.Models.Results
 {
     public class TicketResult
     {

@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HuobiTestApp
+namespace HuobiTestApp.BLL.Models.Results
 {
     public class HuobiResult<T>
     {
         [JsonPropertyName("code")]
-        public long Code { get; set; }
+        public int Code { get; set; }
 
         [JsonPropertyName("message")]
         public string Message { get; set; }

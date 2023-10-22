@@ -1,5 +1,5 @@
 ﻿@using Huobi.Net.Interfaces.Clients
-@using HuobiTestApp.Services
+@using HuobiTestApp.BLL.Interfaces
 
 <MudDialog>
     <DialogContent>
@@ -34,9 +34,5 @@
 
             InvokeAsync(StateHasChanged);
         });
-
-        // var orders = await HuobiService.GetHuobiClosedOrdersAsync(HuobiRestClient, symbol, DateTime.Now.AddMonths(-3), DateTime.Now);
-
-        // Snackbar.Add(orders.Count().ToString());
     }
 }

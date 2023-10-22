@@ -1,8 +1,6 @@
-﻿using HuobiTestApp.Models;
-
-namespace HuobiTestApp.ViewModel
+﻿namespace HuobiTestApp.BLL.Models
 {
-    public class SavingMiningUserAssetViewModel
+    public class SavingMiningUserAsset
     {
         public string Currency { get; set; }
 

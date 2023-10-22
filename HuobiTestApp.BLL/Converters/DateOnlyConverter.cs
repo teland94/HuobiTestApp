@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace HuobiTestApp.Converters
+namespace HuobiTestApp.BLL.Converters
 {
     public class DateOnlyConverter : JsonConverter<DateOnly>
     {

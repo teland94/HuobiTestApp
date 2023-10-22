@@ -1,4 +1,4 @@
-﻿namespace HuobiTestApp.Configuration
+﻿namespace HuobiTestApp.BLL.Configuration
 {
     public class HuobiAccountSettings
     {

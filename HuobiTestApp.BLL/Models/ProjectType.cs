@@ -1,4 +1,4 @@
-﻿namespace HuobiTestApp.Models
+﻿namespace HuobiTestApp.BLL.Models
 {
     public enum ProjectType
     {

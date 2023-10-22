@@ -60,11 +60,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Huobi.Net" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
-        <PackageReference Include="MudBlazor" Version="6.8.0" />
+        <PackageReference Include="MudBlazor" Version="6.11.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HuobiTestApp.BLL\HuobiTestApp.BLL.csproj" />
     </ItemGroup>
 
 </Project>

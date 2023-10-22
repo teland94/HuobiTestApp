@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HuobiTestApp.Models
+namespace HuobiTestApp.BLL.Models.Results
 {
-    public class HuobiUser
+    public class HuobiUserResult
     {
         [JsonPropertyName("account_name")]
         public object AccountName { get; set; }

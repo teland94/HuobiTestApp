@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HuobiTestApp.Models
+namespace HuobiTestApp.BLL.Models.Results
 {
-    public class SavingMiningUserAsset
+    public class SavingMiningUserAssetResult
     {
         [JsonPropertyName("interestToGet")]
         public object InterestToGet { get; set; }
@@ -201,5 +201,14 @@ namespace HuobiTestApp.Models
 
         [JsonPropertyName("maxYearRate")]
         public object MaxYearRate { get; set; }
+    }
+
+    public class RedeemRateInfo
+    {
+        [JsonPropertyName("currRateInfo")]
+        public object CurrRateInfo { get; set; }
+
+        [JsonPropertyName("nextRateInfo")]
+        public object NextRateInfo { get; set; }
     }
 }

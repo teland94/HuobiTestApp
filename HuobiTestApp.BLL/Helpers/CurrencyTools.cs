@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace HuobiTestApp.Helpers
+namespace HuobiTestApp.BLL.Helpers
 {
     public static class CurrencyTools
     {

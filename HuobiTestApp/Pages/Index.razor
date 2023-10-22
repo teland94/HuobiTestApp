@@ -1,5 +1,5 @@
-﻿@using HuobiTestApp.Models
-@using HuobiTestApp.ViewModel
+﻿@using HuobiTestApp.ViewModel
+@using HuobiTestApp.BLL.Models
 @inherits HuobiTestApp.Base.RefreshablePageBase
 
 @page "/"
@@ -43,7 +43,7 @@
             </MudCardContent>
         </MudCard>
         <MudTable Items="@account.Assets" Loading="@Loading" LoadingProgressColor="Color.Info" Breakpoint="Breakpoint.None"
-                  T="SavingMiningUserAssetViewModel" OnRowClick="e => SymbolClicked(e, account.SettingsId)">
+                  T="SavingMiningUserAsset" OnRowClick="e => SymbolClicked(e, account.SettingsId)">
             <HeaderContent>
                 <MudTh>Currency</MudTh>
                 <MudTh>Total Amount</MudTh>

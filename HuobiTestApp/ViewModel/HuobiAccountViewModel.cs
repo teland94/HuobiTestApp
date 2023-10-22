@@ -1,4 +1,6 @@
-﻿namespace HuobiTestApp.ViewModel
+﻿using HuobiTestApp.BLL.Models;
+
+namespace HuobiTestApp.ViewModel
 {
     public class HuobiAccountViewModel
     {
@@ -8,7 +10,7 @@
 
         public decimal TodayProfit { get; set; }
 
-        public IEnumerable<SavingMiningUserAssetViewModel> Assets { get; set; }
+        public IEnumerable<SavingMiningUserAsset> Assets { get; set; }
 
         public Guid SettingsId { get; set; }
     }
