@@ -53,18 +53,21 @@ public static class MauiProgram
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(builder.Configuration.GetValue<string>(nameof(AppSettings.UserAgent)));
             });
 
-       IHuobiRestClient huobiRestClient = new HuobiRestClient(options =>
-       {
-           options.RequestTimeout = TimeSpan.FromSeconds(60);
-       });
+        builder.Services.AddTransient<IHuobiRestClient, HuobiRestClient>(_ =>
+        {
+            return new HuobiRestClient(options =>
+            {
+                options.RequestTimeout = TimeSpan.FromSeconds(60);
+            });
+        });
 
-       IHuobiSocketClient huobiSocketClient = new HuobiSocketClient(options =>
-       {
-           options.RequestTimeout = TimeSpan.FromSeconds(60);
-       });
-
-        builder.Services.AddSingleton(huobiRestClient);
-        builder.Services.AddSingleton(huobiSocketClient);
+        builder.Services.AddTransient<IHuobiSocketClient, HuobiSocketClient>(_ =>
+        {
+            return new HuobiSocketClient(options =>
+            {
+                options.RequestTimeout = TimeSpan.FromSeconds(60);
+            });
+        });
 
         builder.Services.Configure<AppSettings>(builder.Configuration);
 
