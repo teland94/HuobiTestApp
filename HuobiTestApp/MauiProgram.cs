@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using HuobiTestApp.BLL.Configuration;
 using HuobiTestApp.BLL.Services;
 using HuobiTestApp.BLL.Interfaces;
+using JobResponseApp.Worker.Configuration;
+using System.Net;
 
 namespace HuobiTestApp;
 
@@ -44,6 +46,10 @@ public static class MauiProgram
 			config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
         });
 
+        builder.Services.Configure<AppSettings>(builder.Configuration);
+
+        var proxySettings = builder.Configuration.GetSection("Proxy").Get<ProxySettings>();
+
         builder.Services.AddHttpClient<IHuobiService, HuobiService>(
             httpClient =>
             {
@@ -51,6 +57,13 @@ public static class MauiProgram
                 httpClient.Timeout = TimeSpan.FromSeconds(60);
 
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(builder.Configuration.GetValue<string>(nameof(AppSettings.UserAgent)));
+            }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                Proxy = proxySettings != null
+                    ? proxySettings.Enabled
+                        ? new WebProxy($"{proxySettings.Url}:{proxySettings.Port}", true, null, new NetworkCredential(proxySettings.Username, proxySettings.Password))
+                        : null
+                    : null
             });
 
         builder.Services.AddTransient<IHuobiRestClient, HuobiRestClient>(_ =>
@@ -58,6 +71,11 @@ public static class MauiProgram
             return new HuobiRestClient(options =>
             {
                 options.RequestTimeout = TimeSpan.FromSeconds(60);
+                options.Proxy = proxySettings != null 
+                    ? proxySettings.Enabled 
+                        ? new CryptoExchange.Net.Objects.ApiProxy(proxySettings.Url, proxySettings.Port, proxySettings.Username, proxySettings.Password) 
+                        : null
+                    : null;
             });
         });
 
@@ -66,10 +84,13 @@ public static class MauiProgram
             return new HuobiSocketClient(options =>
             {
                 options.RequestTimeout = TimeSpan.FromSeconds(60);
+                options.Proxy = proxySettings != null
+                    ? proxySettings.Enabled
+                        ? new CryptoExchange.Net.Objects.ApiProxy(proxySettings.Url, proxySettings.Port, proxySettings.Username, proxySettings.Password)
+                        : null
+                    : null;
             });
         });
-
-        builder.Services.Configure<AppSettings>(builder.Configuration);
 
 		return builder.Build();
 	}
